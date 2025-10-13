@@ -18,10 +18,10 @@ export default function Dashboard() {
 
   const loadStats = async () => {
     try {
-      // Fetch counts - users should only count patients
+      // Fetch counts - count from users table by role
       const [usersResult, doctorsResult, consultationsResult, paymentsResult, recentConsults] = await Promise.all([
         supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'patient'),
-        supabase.from('doctors').select('*', { count: 'exact', head: true }),
+        supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'doctor'),
         supabase.from('consultations').select('*', { count: 'exact', head: true }),
         supabase.from('payments').select('amount'),
         supabase.from('consultations')
@@ -31,6 +31,11 @@ export default function Dashboard() {
       ]);
 
       const totalPaymentAmount = paymentsResult.data?.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0) || 0;
+
+      // Debug: Log the results
+      console.log('Patients count:', usersResult.count);
+      console.log('Doctors count:', doctorsResult.count);
+      console.log('Doctors result:', doctorsResult);
 
       setStats({
         totalUsers: usersResult.count || 0,
