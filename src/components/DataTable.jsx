@@ -7,7 +7,10 @@ export default function DataTable({
   onEdit, 
   onDelete, 
   onView,
-  loading 
+  loading,
+  editLabel = 'Edit',
+  viewLabel = 'View',
+  deleteLabel = 'Delete'
 }) {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -65,7 +68,7 @@ export default function DataTable({
                           onClick={() => onView(row)}
                           style={{ ...styles.actionBtn, backgroundColor: colors.blue }}
                         >
-                          View
+                          {view}
                         </button>
                       )}
                       {onEdit && (
@@ -73,7 +76,7 @@ export default function DataTable({
                           onClick={() => onEdit(row)}
                           style={{ ...styles.actionBtn, backgroundColor: colors.green }}
                         >
-                          Edit
+                          {editLabel}
                         </button>
                       )}
                       {onDelete && (
@@ -81,7 +84,7 @@ export default function DataTable({
                           onClick={() => onDelete(row)}
                           style={{ ...styles.actionBtn, backgroundColor: colors.red }}
                         >
-                          Delete
+                          {deleteLabel}
                         </button>
                       )}
                     </div>

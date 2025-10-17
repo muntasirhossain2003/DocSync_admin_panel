@@ -6,6 +6,7 @@ import { colors } from '../styles/colors';
 export default function Payments() {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState(null);
 
   useEffect(() => {
     loadPayments();
@@ -14,8 +15,17 @@ export default function Payments() {
   const loadPayments = async () => {
     try {
       const { data, error } = await supabase
-        .from('payments')
-        .select('*, users(full_name, email)')
+        .from('subscription_payments')
+        .select(`
+          id,
+          amount,
+          payment_method,
+          payment_status,
+          payment_number,
+          created_at,
+          subscription_id,
+          users!payments_user_id_fkey ( full_name, email )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -28,17 +38,60 @@ export default function Payments() {
     }
   };
 
+  const handleAction = async (paymentId, subscriptionId, actionType) => {
+    const confirmMsg =
+      actionType === 'verify'
+        ? 'Verify this payment and activate subscription?'
+        : 'Cancel this payment and deactivate subscription?';
+
+    if (!window.confirm(confirmMsg)) return;
+    setUpdatingId(paymentId);
+
+    try {
+      if (actionType === 'verify') {
+        const { error: payError } = await supabase
+          .from('subscription_payments')
+          .update({ payment_status: 'completed' })
+          .eq('id', paymentId);
+        if (payError) throw payError;
+
+        const { error: subError } = await supabase
+          .from('subscriptions')
+          .update({ status: 'active' })
+          .eq('id', subscriptionId);
+        if (subError) throw subError;
+      } else {
+        const { error: payError } = await supabase
+          .from('subscription_payments')
+          .update({ payment_status: 'failed' })
+          .eq('id', paymentId);
+        if (payError) throw payError;
+
+        const { error: subError } = await supabase
+          .from('subscriptions')
+          .update({ status: 'cancelled' })
+          .eq('id', subscriptionId);
+        if (subError) throw subError;
+      }
+
+      await loadPayments();
+    } catch (error) {
+      console.error('Error updating payment/subscription:', error);
+      alert('Failed to update payment or subscription');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   const columns = [
     { label: 'User', key: 'users', render: (user) => user?.full_name || 'N/A' },
+    { label: 'Email', key: 'users', render: (user) => user?.email || 'N/A' },
     { label: 'Amount', key: 'amount', render: (val) => `৳${parseFloat(val).toFixed(2)}` },
     { 
       label: 'Method', 
       key: 'payment_method',
       render: (val) => (
-        <span style={{
-          ...styles.badge,
-          backgroundColor: colors.blue
-        }}>
+        <span style={{ ...styles.badge, backgroundColor: colors.blue }}>
           {val}
         </span>
       )
@@ -47,15 +100,22 @@ export default function Payments() {
       label: 'Status', 
       key: 'payment_status',
       render: (val) => (
-        <span style={{
-          ...styles.badge,
-          backgroundColor: val === 'completed' ? colors.green : val === 'pending' ? colors.orange : colors.red
-        }}>
+        <span
+          style={{
+            ...styles.badge,
+            backgroundColor:
+              val === 'completed'
+                ? colors.green
+                : val === 'pending'
+                ? colors.orange
+                : colors.red,
+          }}
+        >
           {val}
         </span>
-      )
+      ),
     },
-    { label: 'Transaction ID', key: 'transaction_id' },
+    { label: 'Payment Number', key: 'payment_number' },
     { label: 'Date', key: 'created_at', render: (val) => new Date(val).toLocaleString() },
   ];
 
@@ -69,20 +129,18 @@ export default function Payments() {
         data={payments}
         columns={columns}
         loading={loading}
+        onEdit={(row) => handleAction(row.id, row.subscription_id, 'verify')}
+        onDelete={(row) => handleAction(row.id, row.subscription_id, 'cancel')}
+        editLabel='Verify'
+        deleteLabel='Cancel'
       />
     </div>
   );
 }
 
 const styles = {
-  header: {
-    marginBottom: '20px',
-  },
-  title: {
-    fontSize: '28px',
-    fontWeight: 'bold',
-    color: '#333',
-  },
+  header: { marginBottom: '20px' },
+  title: { fontSize: '28px', fontWeight: 'bold', color: '#333' },
   badge: {
     padding: '4px 12px',
     borderRadius: '12px',
