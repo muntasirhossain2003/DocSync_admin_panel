@@ -19,22 +19,36 @@ export default function Dashboard() {
 
   const loadStats = async () => {
     try {
-      // Fetch counts - count from users table by role
-      const [usersResult, doctorsResult, consultationsResult, recentConsults] = await Promise.all([
+      // Fetch counts and payments
+      const [
+        usersResult, 
+        doctorsResult, 
+        consultationsResult, 
+        consultationPaymentsResult,
+        subscriptionPaymentsResult,
+        recentConsults
+      ] = await Promise.all([
         supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'patient'),
         supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'doctor'),
         supabase.from('consultations').select('*', { count: 'exact', head: true }),
+        supabase.from('consultation_payments').select('amount').eq('payment_status', 'completed'),
+        supabase.from('subscription_payments').select('amount').eq('payment_status', 'completed'),
         supabase.from('consultations')
           .select('*, users!consultations_patient_id_fkey(full_name), doctors!consultations_doctor_id_fkey(users!doctors_user_id_fkey(full_name))')
           .order('created_at', { ascending: false })
           .limit(5),
       ]);
 
+      // Calculate total revenue from both payment tables
+      const consultationRevenue = consultationPaymentsResult.data?.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0) || 0;
+      const subscriptionRevenue = subscriptionPaymentsResult.data?.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0) || 0;
+      const totalRevenue = consultationRevenue + subscriptionRevenue;
+
       setStats({
         totalUsers: usersResult.count || 0,
         totalDoctors: doctorsResult.count || 0,
         totalConsultations: consultationsResult.count || 0,
-        totalPayments: 0, // Placeholder since payments table doesn't exist
+        totalPayments: totalRevenue,
         recentConsultations: recentConsults.data || [],
       });
     } catch (error) {

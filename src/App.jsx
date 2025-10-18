@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Consultations from './pages/Consultations';
+import ConsultationPayments from './pages/ConsultationPayments';
 import Dashboard from './pages/Dashboard';
 import Doctors from './pages/Doctors';
 import HealthRecords from './pages/HealthRecords';
@@ -42,6 +43,7 @@ function App() {
             <Route path="prescriptions" element={<Prescriptions />} />
             <Route path="subscriptions" element={<Subscriptions />} />
             <Route path="payments" element={<Payments />} />
+            <Route path="consultation-payments" element={<ConsultationPayments />} />
             <Route path="ratings" element={<Ratings />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="settings" element={<Settings />} />
