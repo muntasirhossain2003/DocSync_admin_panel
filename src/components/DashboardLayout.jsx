@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { colors } from '../styles/colors';
+import { useTheme } from '../context/ThemeContext';
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { colors, isDark } = useTheme();
 
   const handleLogout = async () => {
     try {
@@ -32,6 +33,111 @@ export default function DashboardLayout() {
     { icon: '⚙️', label: 'Settings', path: '/dashboard/settings' },
   ];
 
+  const styles = {
+    container: {
+      display: 'flex',
+      height: '100vh',
+      backgroundColor: colors.background,
+    },
+    sidebar: {
+      backgroundColor: colors.surface,
+      boxShadow: `2px 0 8px ${isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.1)'}`,
+      transition: 'width 0.3s',
+      display: 'flex',
+      flexDirection: 'column',
+      borderRight: `1px solid ${colors.border}`,
+    },
+    sidebarHeader: {
+      padding: '20px',
+      borderBottom: `2px solid ${colors.primary}`,
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    logo: {
+      fontSize: '20px',
+      fontWeight: 'bold',
+      color: colors.primary,
+    },
+    toggleBtn: {
+      backgroundColor: 'transparent',
+      border: 'none',
+      fontSize: '20px',
+      cursor: 'pointer',
+      padding: '5px',
+      color: colors.text,
+    },
+    nav: {
+      flex: 1,
+      padding: '20px 0',
+      overflowY: 'auto',
+    },
+    navItem: (isActive, sidebarOpen) => ({
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      padding: '12px 20px',
+      textDecoration: 'none',
+      color: isActive ? (isDark ? colors.white : colors.primary) : colors.text,
+      backgroundColor: isActive ? (isDark ? colors.primary : colors.primaryLight) : 'transparent',
+      transition: 'background-color 0.2s',
+      margin: '4px 10px',
+      borderRadius: '8px',
+      justifyContent: sidebarOpen ? 'flex-start' : 'center',
+    }),
+    icon: {
+      fontSize: '20px',
+    },
+    navLabel: {
+      fontSize: '14px',
+      fontWeight: '500',
+    },
+    main: {
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
+    },
+    header: {
+      backgroundColor: colors.surface,
+      padding: '20px 30px',
+      boxShadow: `0 2px 4px ${isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.1)'}`,
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      borderBottom: `1px solid ${colors.border}`,
+    },
+    headerTitle: {
+      fontSize: '24px',
+      fontWeight: 'bold',
+      color: colors.primary,
+    },
+    userSection: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '15px',
+    },
+    userEmail: {
+      fontSize: '14px',
+      color: colors.textSecondary,
+    },
+    logoutBtn: {
+      backgroundColor: colors.error,
+      color: colors.white,
+      padding: '8px 16px',
+      border: 'none',
+      borderRadius: '6px',
+      fontSize: '14px',
+      cursor: 'pointer',
+    },
+    content: {
+      flex: 1,
+      padding: '30px',
+      overflowY: 'auto',
+      backgroundColor: colors.background,
+    },
+  };
+
   return (
     <div style={styles.container}>
       {/* Sidebar */}
@@ -54,9 +160,7 @@ export default function DashboardLayout() {
               key={item.path}
               to={item.path}
               style={{
-                ...styles.navItem,
-                backgroundColor: location.pathname === item.path ? colors.lightBlue : 'transparent',
-                justifyContent: sidebarOpen ? 'flex-start' : 'center',
+                ...styles.navItem(location.pathname === item.path, sidebarOpen),
               }}
             >
               <span style={styles.icon}>{item.icon}</span>
@@ -87,102 +191,3 @@ export default function DashboardLayout() {
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: 'flex',
-    height: '100vh',
-    backgroundColor: colors.lightGrey,
-  },
-  sidebar: {
-    backgroundColor: colors.white,
-    boxShadow: '2px 0 8px rgba(0, 0, 0, 0.1)',
-    transition: 'width 0.3s',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  sidebarHeader: {
-    padding: '20px',
-    borderBottom: `2px solid ${colors.lightBlue}`,
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  logo: {
-    fontSize: '20px',
-    fontWeight: 'bold',
-    color: colors.blue,
-  },
-  toggleBtn: {
-    backgroundColor: 'transparent',
-    border: 'none',
-    fontSize: '20px',
-    cursor: 'pointer',
-    padding: '5px',
-  },
-  nav: {
-    flex: 1,
-    padding: '20px 0',
-    overflowY: 'auto',
-  },
-  navItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '12px 20px',
-    textDecoration: 'none',
-    color: '#333',
-    transition: 'background-color 0.2s',
-    margin: '4px 10px',
-    borderRadius: '8px',
-  },
-  icon: {
-    fontSize: '20px',
-  },
-  navLabel: {
-    fontSize: '14px',
-    fontWeight: '500',
-  },
-  main: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-  },
-  header: {
-    backgroundColor: colors.white,
-    padding: '20px 30px',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    color: colors.blue,
-  },
-  userSection: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '15px',
-  },
-  userEmail: {
-    fontSize: '14px',
-    color: colors.grey,
-  },
-  logoutBtn: {
-    backgroundColor: colors.red,
-    color: colors.white,
-    padding: '8px 16px',
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '14px',
-    cursor: 'pointer',
-  },
-  content: {
-    flex: 1,
-    padding: '30px',
-    overflowY: 'auto',
-  },
-};

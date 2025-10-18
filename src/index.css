@@ -18,8 +18,7 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #F5F5F5;
-  color: #333;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {
@@ -33,18 +32,21 @@ h1, h2, h3, h4, h5, h6 {
 button {
   cursor: pointer;
   font-family: inherit;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 input, textarea, select {
   font-family: inherit;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 a {
   text-decoration: none;
   color: inherit;
+  transition: color 0.2s ease;
 }
 
-/* Scrollbar Styling */
+/* Light Theme Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -52,13 +54,28 @@ a {
 
 ::-webkit-scrollbar-track {
   background: #f1f1f1;
+  transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb {
   background: #2196F3;
   border-radius: 4px;
+  transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #1976D2;
+}
+
+/* Dark Theme Scrollbar - Applied when body has dark theme class */
+body.dark-theme::-webkit-scrollbar-track {
+  background: #2d2d2d;
+}
+
+body.dark-theme::-webkit-scrollbar-thumb {
+  background: #2196F3;
+}
+
+body.dark-theme::-webkit-scrollbar-thumb:hover {
+  background: #42A5F5;
 }

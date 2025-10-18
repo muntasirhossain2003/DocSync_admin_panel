@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import DashboardLayout from './components/DashboardLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Consultations from './pages/Consultations';
 import Dashboard from './pages/Dashboard';
 import Doctors from './pages/Doctors';
@@ -15,11 +16,15 @@ import Settings from './pages/Settings';
 import Subscriptions from './pages/Subscriptions';
 import Users from './pages/Users';
 
+console.log('App.jsx loaded');
+
 function App() {
+  console.log('App component rendering');
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Routes>
+      <ThemeProvider>
+        <AuthProvider>
+          <Routes>
           <Route path="/login" element={<Login />} />
           <Route
             path="/dashboard"
@@ -43,7 +48,8 @@ function App() {
           </Route>
           <Route path="/" element={<Navigate to="/dashboard" />} />
         </Routes>
-      </AuthProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

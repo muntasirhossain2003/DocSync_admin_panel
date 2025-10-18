@@ -10,10 +10,18 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('AuthContext: Starting auth check...');
+    
     // Check active session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Auth session:', session);
       setUser(session?.user ?? null);
       setLoading(false);
+      console.log('Auth loading complete, user:', session?.user ?? 'No user');
+    }).catch((error) => {
+      console.error('Auth error:', error);
+      setLoading(false);
+      console.log('Auth failed, proceeding without user');
     });
 
     // Listen for auth changes
@@ -44,6 +52,21 @@ export const AuthProvider = ({ children }) => {
     signOut,
     loading,
   };
+
+  if (loading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '18px',
+        color: '#2196F3'
+      }}>
+        Loading DocSync Admin...
+      </div>
+    );
+  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
