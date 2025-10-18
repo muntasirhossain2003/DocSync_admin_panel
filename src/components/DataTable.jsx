@@ -97,6 +97,8 @@ export default function DataTable({
     return <div style={styles.loading}>Loading...</div>;
   }
 
+  const hasActions = onView || onEdit || onDelete;
+
   return (
     <div style={styles.container}>
       <div style={styles.searchBar}>
@@ -116,13 +118,13 @@ export default function DataTable({
               {columns.map((col, idx) => (
                 <th key={idx} style={styles.th}>{col.label}</th>
               ))}
-              <th style={styles.th}>Actions</th>
+              {hasActions && <th style={styles.th}>Actions</th>}
             </tr>
           </thead>
           <tbody>
             {filteredData.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + 1} style={styles.noData}>
+                <td colSpan={columns.length + (hasActions ? 1 : 0)} style={styles.noData}>
                   No data found
                 </td>
               </tr>
@@ -134,34 +136,36 @@ export default function DataTable({
                       {col.render ? col.render(row[col.key], row) : row[col.key]}
                     </td>
                   ))}
-                  <td style={styles.td}>
-                    <div style={styles.actions}>
-                      {onView && (
-                        <button
-                          onClick={() => onView(row)}
-                          style={{ ...styles.actionBtn, backgroundColor: colors.primary }}
-                        >
-                          {viewLabel}
-                        </button>
-                      )}
-                      {onEdit && (
-                        <button
-                          onClick={() => onEdit(row)}
-                          style={{ ...styles.actionBtn, backgroundColor: colors.success }}
-                        >
-                          {editLabel}
-                        </button>
-                      )}
-                      {onDelete && (
-                        <button
-                          onClick={() => onDelete(row)}
-                          style={{ ...styles.actionBtn, backgroundColor: colors.error }}
-                        >
-                          {deleteLabel}
-                        </button>
-                      )}
-                    </div>
-                  </td>
+                  {hasActions && (
+                    <td style={styles.td}>
+                      <div style={styles.actions}>
+                        {onView && (
+                          <button
+                            onClick={() => onView(row)}
+                            style={{ ...styles.actionBtn, backgroundColor: colors.primary }}
+                          >
+                            {viewLabel}
+                          </button>
+                        )}
+                        {onEdit && (
+                          <button
+                            onClick={() => onEdit(row)}
+                            style={{ ...styles.actionBtn, backgroundColor: colors.success }}
+                          >
+                            {editLabel}
+                          </button>
+                        )}
+                        {onDelete && (
+                          <button
+                            onClick={() => onDelete(row)}
+                            style={{ ...styles.actionBtn, backgroundColor: colors.error }}
+                          >
+                            {deleteLabel}
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))
             )}
