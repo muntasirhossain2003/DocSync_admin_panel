@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import DataTable from '../components/DataTable';
+import { useTheme } from '../context/ThemeContext';
 import { supabase } from '../lib/supabase';
-import { colors } from '../styles/colors';
 
 export default function Users() {
+  const { colors, isDark } = useTheme();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -51,6 +52,71 @@ export default function Users() {
   const handleView = (user) => {
     setSelectedUser(user);
     setShowModal(true);
+  };
+
+  const styles = {
+    header: {
+      marginBottom: '20px',
+    },
+    title: {
+      fontSize: '28px',
+      fontWeight: 'bold',
+      color: colors.text,
+    },
+    badge: {
+      padding: '4px 12px',
+      borderRadius: '12px',
+      color: colors.white,
+      fontSize: '12px',
+      fontWeight: '500',
+      display: 'inline-block',
+    },
+    modalOverlay: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 1000,
+    },
+    modal: {
+      backgroundColor: colors.surface,
+      borderRadius: '12px',
+      padding: '30px',
+      maxWidth: '500px',
+      width: '90%',
+      maxHeight: '80vh',
+      overflowY: 'auto',
+    },
+    modalTitle: {
+      fontSize: '24px',
+      fontWeight: 'bold',
+      marginBottom: '20px',
+      color: colors.primary,
+    },
+    modalContent: {
+      marginBottom: '20px',
+    },
+    detailRow: {
+      padding: '10px 0',
+      borderBottom: `1px solid ${colors.border}`,
+      fontSize: '14px',
+      color: colors.text,
+    },
+    closeBtn: {
+      backgroundColor: colors.primary,
+      color: colors.white,
+      padding: '10px 20px',
+      border: 'none',
+      borderRadius: '6px',
+      cursor: 'pointer',
+      fontSize: '14px',
+      width: '100%',
+    },
   };
 
   const columns = [
@@ -120,67 +186,3 @@ export default function Users() {
     </div>
   );
 }
-
-const styles = {
-  header: {
-    marginBottom: '20px',
-  },
-  title: {
-    fontSize: '28px',
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  badge: {
-    padding: '4px 12px',
-    borderRadius: '12px',
-    color: colors.white,
-    fontSize: '12px',
-    fontWeight: '500',
-    display: 'inline-block',
-  },
-  modalOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-  },
-  modal: {
-    backgroundColor: colors.white,
-    borderRadius: '12px',
-    padding: '30px',
-    maxWidth: '500px',
-    width: '90%',
-    maxHeight: '80vh',
-    overflowY: 'auto',
-  },
-  modalTitle: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    marginBottom: '20px',
-    color: colors.blue,
-  },
-  modalContent: {
-    marginBottom: '20px',
-  },
-  detailRow: {
-    padding: '10px 0',
-    borderBottom: '1px solid #eee',
-    fontSize: '14px',
-  },
-  closeBtn: {
-    backgroundColor: colors.blue,
-    color: colors.white,
-    padding: '10px 20px',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: '14px',
-    width: '100%',
-  },
-};

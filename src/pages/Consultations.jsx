@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import DataTable from '../components/DataTable';
+import { useTheme } from '../context/ThemeContext';
 import { supabase } from '../lib/supabase';
-import { colors } from '../styles/colors';
 
 export default function Consultations() {
+  const { colors } = useTheme();
   const [consultations, setConsultations] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -48,6 +49,25 @@ export default function Consultations() {
       console.error('Error deleting consultation:', error);
       alert('Failed to delete consultation');
     }
+  };
+
+  const styles = {
+    header: {
+      marginBottom: '20px',
+    },
+    title: {
+      fontSize: '28px',
+      fontWeight: 'bold',
+      color: colors.text,
+    },
+    badge: {
+      padding: '4px 12px',
+      borderRadius: '12px',
+      color: colors.white,
+      fontSize: '12px',
+      fontWeight: '500',
+      display: 'inline-block',
+    },
   };
 
   const columns = [
@@ -95,22 +115,3 @@ export default function Consultations() {
     </div>
   );
 }
-
-const styles = {
-  header: {
-    marginBottom: '20px',
-  },
-  title: {
-    fontSize: '28px',
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  badge: {
-    padding: '4px 12px',
-    borderRadius: '12px',
-    color: colors.white,
-    fontSize: '12px',
-    fontWeight: '500',
-    display: 'inline-block',
-  },
-};

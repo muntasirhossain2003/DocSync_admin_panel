@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import DataTable from '../components/DataTable';
+import { useTheme } from '../context/ThemeContext';
 import { supabase } from '../lib/supabase';
-import { colors } from '../styles/colors';
 
 export default function Subscriptions() {
+  const { colors } = useTheme();
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
@@ -60,6 +61,19 @@ export default function Subscriptions() {
     }
   };
 
+  const styles = {
+    header: { marginBottom: '20px' },
+    title: { fontSize: '28px', fontWeight: 'bold', color: colors.text },
+    badge: {
+      padding: '4px 12px',
+      borderRadius: '12px',
+      color: colors.white,
+      fontSize: '12px',
+      fontWeight: '500',
+      display: 'inline-block',
+    },
+  };
+
   const columns = [
     { label: 'User', key: 'users', render: (user) => user?.full_name || 'N/A' },
     { label: 'Email', key: 'users', render: (user) => user?.email || 'N/A' },
@@ -106,16 +120,3 @@ export default function Subscriptions() {
     </div>
   );
 }
-
-const styles = {
-  header: { marginBottom: '20px' },
-  title: { fontSize: '28px', fontWeight: 'bold', color: '#333' },
-  badge: {
-    padding: '4px 12px',
-    borderRadius: '12px',
-    color: colors.white,
-    fontSize: '12px',
-    fontWeight: '500',
-    display: 'inline-block',
-  },
-};

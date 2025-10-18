@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { colors } from '../styles/colors';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -10,6 +10,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const { colors, isDark } = useTheme();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,6 +25,81 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const styles = {
+    container: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      backgroundColor: colors.background,
+    },
+    card: {
+      backgroundColor: colors.surface,
+      padding: '40px',
+      borderRadius: '12px',
+      boxShadow: `0 4px 6px ${isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.1)'}`,
+      width: '100%',
+      maxWidth: '400px',
+    },
+    header: {
+      textAlign: 'center',
+      marginBottom: '30px',
+    },
+    title: {
+      fontSize: '28px',
+      fontWeight: 'bold',
+      color: colors.primary,
+      marginBottom: '8px',
+    },
+    subtitle: {
+      fontSize: '14px',
+      color: colors.textSecondary,
+    },
+    form: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '20px',
+    },
+    error: {
+      backgroundColor: isDark ? 'rgba(211, 47, 47, 0.2)' : '#FFEBEE',
+      color: colors.error,
+      padding: '12px',
+      borderRadius: '6px',
+      fontSize: '14px',
+      border: `1px solid ${colors.error}`,
+    },
+    inputGroup: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '6px',
+    },
+    label: {
+      fontSize: '14px',
+      fontWeight: '500',
+      color: colors.text,
+    },
+    input: {
+      padding: '12px',
+      border: `1px solid ${colors.border}`,
+      borderRadius: '6px',
+      fontSize: '14px',
+      outline: 'none',
+      transition: 'border-color 0.2s',
+      backgroundColor: colors.background,
+      color: colors.text,
+    },
+    button: {
+      backgroundColor: colors.primary,
+      color: colors.white,
+      padding: '12px',
+      border: 'none',
+      borderRadius: '6px',
+      fontSize: '16px',
+      fontWeight: '500',
+      marginTop: '10px',
+    },
   };
 
   return (
@@ -81,75 +157,3 @@ export default function Login() {
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '100vh',
-    backgroundColor: colors.lightGrey,
-  },
-  card: {
-    backgroundColor: colors.white,
-    padding: '40px',
-    borderRadius: '12px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    width: '100%',
-    maxWidth: '400px',
-  },
-  header: {
-    textAlign: 'center',
-    marginBottom: '30px',
-  },
-  title: {
-    fontSize: '28px',
-    fontWeight: 'bold',
-    color: colors.blue,
-    marginBottom: '8px',
-  },
-  subtitle: {
-    fontSize: '14px',
-    color: colors.grey,
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '20px',
-  },
-  error: {
-    backgroundColor: '#FFEBEE',
-    color: colors.red,
-    padding: '12px',
-    borderRadius: '6px',
-    fontSize: '14px',
-  },
-  inputGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px',
-  },
-  label: {
-    fontSize: '14px',
-    fontWeight: '500',
-    color: '#333',
-  },
-  input: {
-    padding: '12px',
-    border: '1px solid #ddd',
-    borderRadius: '6px',
-    fontSize: '14px',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-  },
-  button: {
-    backgroundColor: colors.blue,
-    color: colors.white,
-    padding: '12px',
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '16px',
-    fontWeight: '500',
-    marginTop: '10px',
-  },
-};

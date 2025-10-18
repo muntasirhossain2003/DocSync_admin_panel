@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { colors } from '../styles/colors';
+import { useTheme } from '../context/ThemeContext';
 
 export default function DataTable({ 
   data, 
@@ -13,12 +13,85 @@ export default function DataTable({
   deleteLabel = 'Delete'
 }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const { colors, isDark } = useTheme();
 
   const filteredData = data.filter(item => 
     Object.values(item).some(val => 
       val?.toString().toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
+
+  const styles = {
+    container: {
+      backgroundColor: colors.surface,
+      borderRadius: '12px',
+      padding: '20px',
+      boxShadow: `0 2px 8px ${isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.1)'}`,
+    },
+    loading: {
+      textAlign: 'center',
+      padding: '50px',
+      fontSize: '16px',
+      color: colors.text,
+    },
+    searchBar: {
+      marginBottom: '20px',
+    },
+    searchInput: {
+      width: '100%',
+      maxWidth: '400px',
+      padding: '10px 15px',
+      border: `1px solid ${colors.border}`,
+      borderRadius: '6px',
+      fontSize: '14px',
+      backgroundColor: colors.background,
+      color: colors.text,
+    },
+    tableWrapper: {
+      overflowX: 'auto',
+    },
+    table: {
+      width: '100%',
+      borderCollapse: 'collapse',
+    },
+    headerRow: {
+      backgroundColor: colors.background,
+    },
+    th: {
+      padding: '12px',
+      textAlign: 'left',
+      fontWeight: '600',
+      fontSize: '14px',
+      color: colors.text,
+      borderBottom: `2px solid ${colors.primary}`,
+    },
+    tr: {
+      borderBottom: `1px solid ${colors.border}`,
+    },
+    td: {
+      padding: '12px',
+      fontSize: '14px',
+      color: colors.textSecondary,
+    },
+    noData: {
+      textAlign: 'center',
+      padding: '30px',
+      color: colors.textSecondary,
+    },
+    actions: {
+      display: 'flex',
+      gap: '8px',
+    },
+    actionBtn: {
+      padding: '6px 12px',
+      border: 'none',
+      borderRadius: '4px',
+      color: colors.white,
+      fontSize: '12px',
+      cursor: 'pointer',
+      fontWeight: '500',
+    },
+  };
 
   if (loading) {
     return <div style={styles.loading}>Loading...</div>;
@@ -66,15 +139,15 @@ export default function DataTable({
                       {onView && (
                         <button
                           onClick={() => onView(row)}
-                          style={{ ...styles.actionBtn, backgroundColor: colors.blue }}
+                          style={{ ...styles.actionBtn, backgroundColor: colors.primary }}
                         >
-                          {view}
+                          {viewLabel}
                         </button>
                       )}
                       {onEdit && (
                         <button
                           onClick={() => onEdit(row)}
-                          style={{ ...styles.actionBtn, backgroundColor: colors.green }}
+                          style={{ ...styles.actionBtn, backgroundColor: colors.success }}
                         >
                           {editLabel}
                         </button>
@@ -82,7 +155,7 @@ export default function DataTable({
                       {onDelete && (
                         <button
                           onClick={() => onDelete(row)}
-                          style={{ ...styles.actionBtn, backgroundColor: colors.red }}
+                          style={{ ...styles.actionBtn, backgroundColor: colors.error }}
                         >
                           {deleteLabel}
                         </button>
@@ -98,72 +171,3 @@ export default function DataTable({
     </div>
   );
 }
-
-const styles = {
-  container: {
-    backgroundColor: colors.white,
-    borderRadius: '12px',
-    padding: '20px',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-  },
-  loading: {
-    textAlign: 'center',
-    padding: '50px',
-    fontSize: '16px',
-  },
-  searchBar: {
-    marginBottom: '20px',
-  },
-  searchInput: {
-    width: '100%',
-    maxWidth: '400px',
-    padding: '10px 15px',
-    border: '1px solid #ddd',
-    borderRadius: '6px',
-    fontSize: '14px',
-  },
-  tableWrapper: {
-    overflowX: 'auto',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-  },
-  headerRow: {
-    backgroundColor: colors.lightGrey,
-  },
-  th: {
-    padding: '12px',
-    textAlign: 'left',
-    fontWeight: '600',
-    fontSize: '14px',
-    color: '#333',
-    borderBottom: `2px solid ${colors.blue}`,
-  },
-  tr: {
-    borderBottom: '1px solid #eee',
-  },
-  td: {
-    padding: '12px',
-    fontSize: '14px',
-    color: '#666',
-  },
-  noData: {
-    textAlign: 'center',
-    padding: '30px',
-    color: colors.grey,
-  },
-  actions: {
-    display: 'flex',
-    gap: '8px',
-  },
-  actionBtn: {
-    padding: '6px 12px',
-    border: 'none',
-    borderRadius: '4px',
-    color: colors.white,
-    fontSize: '12px',
-    cursor: 'pointer',
-    fontWeight: '500',
-  },
-};

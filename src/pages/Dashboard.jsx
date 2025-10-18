@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useTheme } from '../context/ThemeContext';
 import { supabase } from '../lib/supabase';
-import { colors } from '../styles/colors';
 
 export default function Dashboard() {
+  const { colors, isDark } = useTheme();
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalDoctors: 0,
@@ -19,29 +20,21 @@ export default function Dashboard() {
   const loadStats = async () => {
     try {
       // Fetch counts - count from users table by role
-      const [usersResult, doctorsResult, consultationsResult, paymentsResult, recentConsults] = await Promise.all([
+      const [usersResult, doctorsResult, consultationsResult, recentConsults] = await Promise.all([
         supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'patient'),
         supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'doctor'),
         supabase.from('consultations').select('*', { count: 'exact', head: true }),
-        supabase.from('payments').select('amount'),
         supabase.from('consultations')
           .select('*, users!consultations_patient_id_fkey(full_name), doctors!consultations_doctor_id_fkey(users!doctors_user_id_fkey(full_name))')
           .order('created_at', { ascending: false })
           .limit(5),
       ]);
 
-      const totalPaymentAmount = paymentsResult.data?.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0) || 0;
-
-      // Debug: Log the results
-      console.log('Patients count:', usersResult.count);
-      console.log('Doctors count:', doctorsResult.count);
-      console.log('Doctors result:', doctorsResult);
-
       setStats({
         totalUsers: usersResult.count || 0,
         totalDoctors: doctorsResult.count || 0,
         totalConsultations: consultationsResult.count || 0,
-        totalPayments: totalPaymentAmount,
+        totalPayments: 0, // Placeholder since payments table doesn't exist
         recentConsultations: recentConsults.data || [],
       });
     } catch (error) {
@@ -51,15 +44,125 @@ export default function Dashboard() {
     }
   };
 
+  const styles = {
+    container: {
+      maxWidth: '1400px',
+    },
+    loading: {
+      textAlign: 'center',
+      padding: '50px',
+      fontSize: '18px',
+      color: colors.text,
+    },
+    title: {
+      fontSize: '28px',
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: '30px',
+    },
+    statsGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+      gap: '20px',
+      marginBottom: '30px',
+    },
+    statCard: {
+      backgroundColor: colors.surface,
+      padding: '25px',
+      borderRadius: '12px',
+      boxShadow: `0 2px 8px ${isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.1)'}`,
+      display: 'flex',
+      alignItems: 'center',
+      gap: '20px',
+    },
+    statIcon: {
+      fontSize: '40px',
+    },
+    statContent: {
+      flex: 1,
+    },
+    statLabel: {
+      fontSize: '14px',
+      color: colors.textSecondary,
+      marginBottom: '5px',
+    },
+    statValue: {
+      fontSize: '28px',
+      fontWeight: 'bold',
+      margin: 0,
+    },
+    card: {
+      backgroundColor: colors.surface,
+      padding: '25px',
+      borderRadius: '12px',
+      boxShadow: `0 2px 8px ${isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.1)'}`,
+      marginBottom: '20px',
+    },
+    cardTitle: {
+      fontSize: '20px',
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: '20px',
+    },
+    table: {
+      overflowX: 'auto',
+    },
+    tableHeader: {
+      backgroundColor: colors.background,
+    },
+    th: {
+      padding: '12px',
+      textAlign: 'left',
+      fontWeight: '600',
+      fontSize: '14px',
+      color: colors.text,
+    },
+    tr: {
+      borderBottom: `1px solid ${colors.border}`,
+    },
+    td: {
+      padding: '12px',
+      fontSize: '14px',
+      color: colors.textSecondary,
+    },
+    badge: {
+      padding: '4px 12px',
+      borderRadius: '12px',
+      color: colors.white,
+      fontSize: '12px',
+      fontWeight: '500',
+    },
+  };
+
   if (loading) {
     return <div style={styles.loading}>Loading...</div>;
   }
 
   const statCards = [
-    { title: 'Total Patients', value: stats.totalUsers, icon: '👥', color: colors.blue },
-    { title: 'Total Doctors', value: stats.totalDoctors, icon: '👨‍⚕️', color: colors.green },
-    { title: 'Consultations', value: stats.totalConsultations, icon: '🩺', color: colors.orange },
-    { title: 'Total Revenue', value: `৳${stats.totalPayments.toFixed(2)}`, icon: '💰', color: colors.purple },
+    {
+      title: 'Total Patients',
+      value: stats.totalUsers,
+      icon: '👥',
+      color: '#2196F3',
+    },
+    {
+      title: 'Total Doctors',
+      value: stats.totalDoctors,
+      icon: '👨‍⚕️',
+      color: '#4CAF50',
+    },
+    {
+      title: 'Total Consultations',
+      value: stats.totalConsultations,
+      icon: '📋',
+      color: '#FF9800',
+    },
+    {
+      title: 'Total Revenue',
+      value: `$${stats.totalPayments.toFixed(2)}`,
+      icon: '💰',
+      color: '#9C27B0',
+    },
   ];
 
   return (
@@ -102,8 +205,8 @@ export default function Dashboard() {
                   <td style={styles.td}>
                     <span style={{
                       ...styles.badge,
-                      backgroundColor: consult.consultation_status === 'completed' ? colors.green :
-                                     consult.consultation_status === 'scheduled' ? colors.blue : colors.red
+                      backgroundColor: consult.consultation_status === 'completed' ? colors.success :
+                                     consult.consultation_status === 'scheduled' ? colors.primary : colors.error
                     }}>
                       {consult.consultation_status}
                     </span>
@@ -118,92 +221,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
-const styles = {
-  container: {
-    maxWidth: '1400px',
-  },
-  loading: {
-    textAlign: 'center',
-    padding: '50px',
-    fontSize: '18px',
-  },
-  title: {
-    fontSize: '28px',
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: '30px',
-  },
-  statsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: '20px',
-    marginBottom: '30px',
-  },
-  statCard: {
-    backgroundColor: colors.white,
-    padding: '25px',
-    borderRadius: '12px',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '20px',
-  },
-  statIcon: {
-    fontSize: '40px',
-  },
-  statContent: {
-    flex: 1,
-  },
-  statLabel: {
-    fontSize: '14px',
-    color: colors.grey,
-    marginBottom: '5px',
-  },
-  statValue: {
-    fontSize: '28px',
-    fontWeight: 'bold',
-    margin: 0,
-  },
-  card: {
-    backgroundColor: colors.white,
-    padding: '25px',
-    borderRadius: '12px',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-    marginBottom: '20px',
-  },
-  cardTitle: {
-    fontSize: '20px',
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: '20px',
-  },
-  table: {
-    overflowX: 'auto',
-  },
-  tableHeader: {
-    backgroundColor: colors.lightGrey,
-  },
-  th: {
-    padding: '12px',
-    textAlign: 'left',
-    fontWeight: '600',
-    fontSize: '14px',
-    color: '#333',
-  },
-  tr: {
-    borderBottom: '1px solid #eee',
-  },
-  td: {
-    padding: '12px',
-    fontSize: '14px',
-    color: '#666',
-  },
-  badge: {
-    padding: '4px 12px',
-    borderRadius: '12px',
-    color: colors.white,
-    fontSize: '12px',
-    fontWeight: '500',
-  },
-};
